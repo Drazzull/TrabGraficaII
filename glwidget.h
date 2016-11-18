@@ -1,11 +1,15 @@
-#ifndef GLWIDGET_H
-#define GLWIDGET_H
+#pragma once
 
+#include "vetor.h"
+#include <QGLWidget>
+#include <QMouseEvent>
 
-class GLWidget
+#define PI 3.141592
+
+class GLWidget : public QGLWidget
 {
+    Q_OBJECT
 public:
-    GLWidget();
-};
-
-#endif // GLWIDGET_H
+    GLWidget(QWidget* parent = 0);
+    ~GLWidget();
+}
