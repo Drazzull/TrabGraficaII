@@ -110,19 +110,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="gorilla.h" />
+    <ClInclude Include="oozaru.h" />
     <ClInclude Include="predio.h" />
     <ClInclude Include="projetil.h" />
+    <ClInclude Include="sol.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="gorilla.cpp" />
+    <ClCompile Include="oozaru.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="predio.cpp" />
     <ClCompile Include="projetil.cpp" />
+    <ClCompile Include="sol.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

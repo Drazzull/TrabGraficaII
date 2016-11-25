@@ -44,7 +44,7 @@ void Projetil::desenhaProjetil()
 	// Carrega a matriz de identidade
 	glLoadIdentity();
 
-	// Rotaciona os objetos
+	// Inicializa a posição do objeto
 	glTranslatef(this->widthJanela / 2, this->heightJanela / 2, 0.0f);
 	glRotatef(this->angulo, 0.0f, 0.0f, 1.0f);
 

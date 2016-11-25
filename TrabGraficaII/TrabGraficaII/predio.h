@@ -12,6 +12,11 @@ public:
 	// Destrutor
 	~Predio();
 
+	// Getters
+	Vector getPosicao();
+	int getLargura();
+	int getAltura();
+
 	// Métodos de desenho
 	void desenhaPredio();
 

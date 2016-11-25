@@ -15,18 +15,34 @@ Predio::~Predio()
 {
 }
 
+// Getters
+Vector Predio::getPosicao()
+{
+	return this->posicaoInicial;
+}
+
+int Predio::getLargura()
+{
+	return this->largura;
+}
+
+int Predio::getAltura()
+{
+	return this->altura;
+}
+
 void Predio::desenhaPredio()
 {
 	// Carrega a matriz de identidade
 	glLoadIdentity();
 
-	// Rotaciona os objetos
+	// Inicializa a posição do objeto
 	glTranslatef(this->posicaoInicial.getX(), this->posicaoInicial.getY(), 1.0f);
 
 	// Desenha o objeto
+	glColor3ub(192, 192, 192);
 	glBegin(GL_QUADS);
 	{
-		glColor3f(1.0f, 0.0f, 0.0f);
 		glVertex2f(0.0f, 0.0f);
 		glVertex2f((GLfloat)this->largura, 0.0f);
 		glVertex2f((GLfloat)this->largura, (GLfloat)this->altura);

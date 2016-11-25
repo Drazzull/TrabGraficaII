@@ -3,6 +3,8 @@
 #include "vector.h"
 #include "projetil.h"
 #include "predio.h"
+#include "oozaru.h"
+#include "sol.h"
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
@@ -13,6 +15,12 @@ int tempoRefresh = 30;
 // Predios
 const int numeroPredios = 10;
 Predio predios[numeroPredios];
+
+// Gorilas
+Oozaru oozarus[2];
+
+// Sol
+Sol sol;
 
 // Define os tamanhos da janela
 GLfloat width = 1024.0f;
@@ -35,7 +43,7 @@ void carregarPredios()
 	{
 		// Definir a altura e largura randonômicamente
 		altura = rand() % percTela + percTela;
-		largura = rand() % 150 + 75;
+		largura = rand() % 150 + 50;
 
 		// Define o prédio
 		predios[i] = Predio(xInicial, yInicial, largura, altura);
@@ -45,17 +53,100 @@ void carregarPredios()
 	}
 }
 
+GLfloat ObterAlturaPredio(GLfloat x)
+{
+	// Desenha os prédios
+	for (int i = 0; i < numeroPredios; i++)
+	{
+		if (predios[i].getPosicao().getX() + predios[i].getLargura() >= x)
+		{
+			return predios[i].getPosicao().getY() + predios[i].getAltura();
+		}
+	}
+
+	return 0.0f;
+}
+
+GLfloat ObterLarguraPredio(GLfloat x)
+{
+	// Desenha os prédios
+	for (int i = 0; i < numeroPredios; i++)
+	{
+		if (predios[i].getPosicao().getX() + predios[i].getLargura() >= x)
+		{
+			return predios[i].getPosicao().getX();
+		}
+	}
+
+	return 0.0f;
+}
+
+// Método pra definir os gorilas
+void carregarOozarus()
+{
+	// Calcula o tamanho da tela pela metade
+	int percTela = (int)(width / 2);
+
+	// Calcula o X Inicial do primeiro gorila
+	GLfloat xInicial = rand() % percTela;
+	if (xInicial < 0)
+	{
+		xInicial = 0;
+	}
+
+	// Obtém a altura do prédio abaixo do gorila
+	GLfloat yInicial = ObterAlturaPredio(xInicial + 50);
+
+	// Recalcula o X para garantir que vá ficar sobre o prédio
+	xInicial = ObterLarguraPredio(xInicial + 50);
+
+	// Define as posições iniciais do primeiro gorila
+	oozarus[0] = Oozaru(xInicial, yInicial);
+
+	// Calcula o X Inicial do segundo gorila
+	xInicial = rand() % percTela + percTela;
+	if (xInicial > 904)
+	{
+		xInicial = 904;
+	}
+
+	// Obtém a altura do prédio abaixo do gorila
+	yInicial = ObterAlturaPredio(xInicial + 50);
+
+	// Recalcula o X para garantir que vá ficar sobre o prédio
+	xInicial = ObterLarguraPredio(xInicial + 50);
+
+	// Verifica se os dois gorilas ficaram com a mesma posição
+	if (xInicial == oozarus[0].getPosicaoInicial().getX())
+	{
+		xInicial += 200;
+		xInicial = ObterLarguraPredio(xInicial + 50);
+	}
+
+	// Define as posições iniciais do segundo gorila
+	oozarus[1] = Oozaru(xInicial, yInicial);
+}
+
+// Método principal de desenho
 void desenha()
 {
 	// Limpa as matrizes
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 
-	// Desenha os projéteis
+	// Desenha os prédios
 	for (int i = 0; i < numeroPredios; i++)
 	{
 		predios[i].desenhaPredio();
 	}
+
+	// Desenha os gorillas
+	oozarus[0].desenhaOozaru();
+	oozarus[1].desenhaOozaru();
+
+	// Desenha o sol
+	sol.desenhaSol();
+
 	glutSwapBuffers();
 }
 
@@ -94,6 +185,12 @@ int main(int argc, char **argv)
 
 	// Definir Prédios
 	carregarPredios();
+
+	// Definir posição dos gorillas
+	carregarOozarus();
+
+	// Define a posição inicial do sol
+	sol = Sol(width / 2, height - 70);
 
 	// Define o tipo da projeção
 	glMatrixMode(GL_PROJECTION);
