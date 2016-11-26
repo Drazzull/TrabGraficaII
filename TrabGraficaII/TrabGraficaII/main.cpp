@@ -1,34 +1,67 @@
-#include <GL/freeglut.h>
 #define _USE_MATH_DEFINES
-#include "vector.h"
+#include <GL/freeglut.h>
+#include <math.h>
+#include <stdlib.h>
+#include <time.h>
+#include <vector>
+#include <string>
+#include "vetor.h"
 #include "projetil.h"
 #include "predio.h"
 #include "oozaru.h"
 #include "sol.h"
-#include <math.h>
-#include <stdlib.h>
-#include <time.h>
+#include "explosao.h"
 
+#pragma region Propriedades
 // Tempo de refresh da tela
 int tempoRefresh = 30;
 
 // Predios
-const int numeroPredios = 10;
-Predio predios[numeroPredios];
+int numeroPredios = 10;
+std::vector<Predio> predios;
 
 // Gorilas
-Oozaru oozarus[2];
+std::vector<Oozaru> oozarus;
+int oozaruAtual = 0;
+
+// Explosões
+std::vector<Explosao> explosoes;
 
 // Sol
 Sol sol;
+
+// Projétil
+Projetil projetil;
+
+// Mouse
+Vetor _mouse(0, 0);
 
 // Define os tamanhos da janela
 GLfloat width = 1024.0f;
 GLfloat height = 768.0f;
 
+// Propriedades para o lançamneto
+int anguloLancamento = 0;
+int velocidadeLancamento = 0;
+bool emLancamento = false;
+
+// Strings das mensagens
+int atributo = 0;
+std::string atributoEditado;
+std::string anguloString0;
+std::string velocidadeString0;
+std::string anguloString1;
+std::string velocidadeString1;
+#pragma endregion
+
+#pragma region Inicialização
+
 // Método pra definir os prédios
 void carregarPredios()
 {
+	// Limpa a lista
+	predios.clear();
+
 	// Define as posições iniciais do primeiro prédio
 	GLfloat yInicial = 10.0f;
 	GLfloat xInicial = 2.0f;
@@ -46,7 +79,7 @@ void carregarPredios()
 		largura = rand() % 150 + 50;
 
 		// Define o prédio
-		predios[i] = Predio(xInicial, yInicial, largura, altura);
+		predios.push_back(Predio(xInicial, yInicial, largura, altura));
 
 		// Define a posição inicial do próximo prédio
 		xInicial = xInicial + largura + 2;
@@ -84,6 +117,9 @@ GLfloat ObterLarguraPredio(GLfloat x)
 // Método pra definir os gorilas
 void carregarOozarus()
 {
+	// Limpa a lista
+	oozarus.clear();
+
 	// Calcula o tamanho da tela pela metade
 	int percTela = (int)(width / 2);
 
@@ -95,13 +131,13 @@ void carregarOozarus()
 	}
 
 	// Obtém a altura do prédio abaixo do gorila
-	GLfloat yInicial = ObterAlturaPredio(xInicial + 50);
+	GLfloat yInicial = ObterAlturaPredio(xInicial + 30);
 
 	// Recalcula o X para garantir que vá ficar sobre o prédio
 	xInicial = ObterLarguraPredio(xInicial + 50);
 
 	// Define as posições iniciais do primeiro gorila
-	oozarus[0] = Oozaru(xInicial, yInicial);
+	oozarus.push_back(Oozaru(xInicial, yInicial));
 
 	// Calcula o X Inicial do segundo gorila
 	xInicial = rand() % percTela + percTela;
@@ -124,7 +160,19 @@ void carregarOozarus()
 	}
 
 	// Define as posições iniciais do segundo gorila
-	oozarus[1] = Oozaru(xInicial, yInicial);
+	oozarus.push_back(Oozaru(xInicial, yInicial));
+}
+#pragma endregion
+
+#pragma region Controles do Glut
+void displayText(float x, float y, int r, int g, int b, const std::string mensagem)
+{
+	glColor3ub(r, g, b);
+	glRasterPos2f(x, y);
+	for (int i = 0; i < mensagem.length(); i++)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, mensagem[i]);
+	}
 }
 
 // Método principal de desenho
@@ -135,23 +183,53 @@ void desenha()
 	glMatrixMode(GL_MODELVIEW);
 
 	// Desenha os prédios
-	for (int i = 0; i < numeroPredios; i++)
+	for (unsigned int i = 0; i < predios.size(); i++)
 	{
 		predios[i].desenhaPredio();
 	}
 
 	// Desenha os gorillas
-	oozarus[0].desenhaOozaru();
-	oozarus[1].desenhaOozaru();
+	for (unsigned int i = 0; i < oozarus.size(); i++)
+	{
+		oozarus[i].desenhaOozaru();
+	}
+
+	// Desenha as explosões
+	for (unsigned int i = 0; i < explosoes.size(); i++)
+	{
+		explosoes[i].desenhaExplosao();
+	}
 
 	// Desenha o sol
 	sol.desenhaSol();
+
+	// Desenha o projétil
+	projetil.desenhaProjetil();
+
+	// Carrega a matriz de identidade
+	glLoadIdentity();
+
+	// Desenha os textos do player 1
+	displayText(30, height - 30, 255, 0, 0, "Player 1");
+	displayText(30, height - 50, 255, 0, 0, "Angulo: " + anguloString0);
+	displayText(30, height - 70, 255, 0, 0, "Velocidade: " + velocidadeString0);
+
+	// Desenha os textos do player 2
+	displayText(width - 160, height - 30, 255, 0, 0, "Player 2");
+	displayText(width - 160, height - 50, 255, 0, 0, "Angulo: " + anguloString1);
+	displayText(width - 160, height - 70, 255, 0, 0, "Velocidade: " + velocidadeString1);
 
 	glutSwapBuffers();
 }
 
 void teclado(unsigned char key, int x, int y)
 {
+	// Não permite a digitação se estiver em lançamento
+	if (emLancamento)
+	{
+		return;
+	}
+
 	switch (key)
 	{
 	case 27:
@@ -159,8 +237,113 @@ void teclado(unsigned char key, int x, int y)
 		exit(0);
 		break;
 
-	case 32:
-		// Tecla SPACE
+	case 13:
+		// Altera o atributo em edição
+		switch (atributo)
+		{
+		case 1:
+			atributo = 0;
+			switch (oozaruAtual)
+			{
+			case 0:
+				oozaruAtual = 1;
+				anguloString1 = "";
+				velocidadeString1 = "";
+				break;
+
+			case 1:
+			default:
+				oozaruAtual = 0;
+				anguloString0 = "";
+				velocidadeString0 = "";
+				break;
+			}
+			break;
+
+		default:
+			atributo = 1;
+			break;
+		}
+		atributoEditado = "";
+		break;
+
+	case 8:
+		atributoEditado = atributoEditado.substr(0, atributoEditado.length() - 1);
+		break;
+
+	case 48:
+		atributoEditado += "0";
+		break;
+
+	case 49:
+		atributoEditado += "1";
+		break;
+
+	case 50:
+		atributoEditado += "2";
+		break;
+
+	case 51:
+		atributoEditado += "3";
+		break;
+
+	case 52:
+		atributoEditado += "4";
+		break;
+
+	case 53:
+		atributoEditado += "5";
+		break;
+
+	case 54:
+		atributoEditado += "6";
+		break;
+
+	case 55:
+		atributoEditado += "7";
+		break;
+
+	case 56:
+		atributoEditado += "8";
+		break;
+
+	case 57:
+		atributoEditado += "9";
+		break;
+	}
+
+	switch (atributo)
+	{
+	case 1:
+		switch (oozaruAtual)
+		{
+		case 0:
+			velocidadeString0 = atributoEditado;
+			velocidadeLancamento = velocidadeString0 != "" ? stoi(velocidadeString0) : 0;
+			break;
+
+		case 1:
+		default:
+			velocidadeString1 = atributoEditado;
+			velocidadeLancamento = velocidadeString1 != "" ? stoi(velocidadeString1) : 0;
+			break;
+		}
+		break;
+
+	default:
+		switch (oozaruAtual)
+		{
+		case 0:
+			anguloString0 = atributoEditado;
+			anguloLancamento = anguloString0 != "" ? stoi(anguloString0) : 0;
+			break;
+
+		case 1:
+		default:
+			anguloString1 = atributoEditado;
+			anguloLancamento = anguloString1 != "" ? stoi(anguloString1) : 0;
+			break;
+		}
 		break;
 	}
 }
@@ -170,6 +353,7 @@ void timer(int valor)
 	glutPostRedisplay();
 	glutTimerFunc(tempoRefresh, timer, 0);
 }
+#pragma endregion
 
 int main(int argc, char **argv)
 {
@@ -191,6 +375,12 @@ int main(int argc, char **argv)
 
 	// Define a posição inicial do sol
 	sol = Sol(width / 2, height - 70);
+
+	// Define a posição inicial do projétil
+	projetil = Projetil(
+		oozarus[0].getPosicaoInicial().getX() + 50,
+		oozarus[0].getPosicaoInicial().getY() + 10);
+	projetil.setAtivo(true);
 
 	// Define o tipo da projeção
 	glMatrixMode(GL_PROJECTION);

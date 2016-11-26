@@ -1,6 +1,6 @@
 #pragma once
 #include <GL/glut.h>
-#include "vector.h"
+#include "vetor.h"
 
 class Sol
 {
@@ -17,7 +17,7 @@ public:
 
 private:
 	// Propriedades
-	Vector posicaoInicial;
+	Vetor posicaoInicial;
 	bool solAcertado;
 	int controleSolAcertado;
 
@@ -28,4 +28,3 @@ private:
 	void desenhaOlhos();
 	void desenhaBoca();
 };
-

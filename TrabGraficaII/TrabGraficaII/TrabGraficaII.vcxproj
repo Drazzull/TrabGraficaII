@@ -110,16 +110,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="explosao.h" />
     <ClInclude Include="oozaru.h" />
     <ClInclude Include="predio.h" />
     <ClInclude Include="projetil.h" />
     <ClInclude Include="sol.h" />
-    <ClInclude Include="vector.h" />
+    <ClInclude Include="vetor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="explosao.cpp" />
     <ClCompile Include="oozaru.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="predio.cpp" />

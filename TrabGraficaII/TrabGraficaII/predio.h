@@ -1,6 +1,6 @@
 #pragma once
 #include <GL/glut.h>
-#include "vector.h"
+#include "vetor.h"
 
 class Predio
 {
@@ -13,7 +13,7 @@ public:
 	~Predio();
 
 	// Getters
-	Vector getPosicao();
+	Vetor getPosicao();
 	int getLargura();
 	int getAltura();
 
@@ -21,7 +21,7 @@ public:
 	void desenhaPredio();
 
 private:
-	Vector posicaoInicial;
+	Vetor posicaoInicial;
 	int largura;
 	int altura;
 };

@@ -3,16 +3,16 @@
 
 Sol::Sol()
 {
-	this->solAcertado = false;
+	this->solAcertado = true;
 	this->controleSolAcertado = 0;
-	this->posicaoInicial = Vector(0.0f, 0.0f);
+	this->posicaoInicial = Vetor(0, 0);
 }
 
 Sol::Sol(GLfloat xInicial, GLfloat yInicial)
 {
 	this->solAcertado = true;
 	this->controleSolAcertado = 0;
-	this->posicaoInicial = Vector(xInicial, yInicial);
+	this->posicaoInicial = Vetor(xInicial, yInicial);
 }
 
 Sol::~Sol()

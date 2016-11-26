@@ -1,6 +1,6 @@
 #pragma once
 #include <GL/glut.h>
-#include "vector.h"
+#include "vetor.h"
 
 class Projetil
 {
@@ -12,22 +12,43 @@ public:
 	// Destrutor
 	~Projetil();
 
+	// Getters
+	int getLargura();
+	int getAltura();
+	Vetor getPosicaoInicial();
+	bool isAtirado();
+	GLfloat getMagnitudeLancamento();
+
 	// Setters
+	void setAtirado(bool valor);
 	void setAngulo(GLfloat valor);
-	void setWidthJanela(GLfloat valor);
-	void setHeightJanela(GLfloat valor);
 	void setAtivo(bool valor);
+	void setPosicaoInicial(GLfloat x, GLfloat y);
+	void setDirecaoLancamento(char valor);
+	void setVelocidadeLancamento(GLfloat valor);
+	void setMagnitudeLancamento(GLfloat valor);
 
 	// Métodos de desenho
 	void desenhaProjetil();
 
 private:
-	GLfloat angulo;
-	GLfloat widthJanela;
-	GLfloat heightJanela;
-
+	// Propriedade que define se o projétil está ativo
 	bool ativo = false;
+	bool atirado = false;
 
-	Vector posicao;
-	Vector velocidade = Vector(0.0f, 1.0f);
+	// Ângulo de rotação
+	GLfloat angulo;
+
+	// Propriedades para o lançamento da banana
+	char direcaoLancamento;
+	GLfloat velocidadeLancamento;
+	GLfloat magnitudeLancamento;
+
+	// Vetores
+	Vetor posicaoInicial;
+	Vetor velocidade = Vetor(0.0f, 1.0f);
+
+	// Propriedades com o tamanho máximo para achar a caixa de colisão
+	int largura = 10;
+	int altura = 10;
 };

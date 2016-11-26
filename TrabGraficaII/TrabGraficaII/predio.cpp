@@ -6,7 +6,7 @@ Predio::Predio()
 
 Predio::Predio(GLfloat xInicial, GLfloat yInicial, int largura, int altura)
 {
-	this->posicaoInicial = Vector(xInicial, yInicial);
+	this->posicaoInicial = Vetor(xInicial, yInicial);
 	this->largura = largura;
 	this->altura = altura;
 }
@@ -16,7 +16,7 @@ Predio::~Predio()
 }
 
 // Getters
-Vector Predio::getPosicao()
+Vetor Predio::getPosicao()
 {
 	return this->posicaoInicial;
 }

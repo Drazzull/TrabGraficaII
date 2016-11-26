@@ -6,7 +6,7 @@ Projetil::Projetil()
 
 Projetil::Projetil(GLfloat x, GLfloat y)
 {
-	this->posicao = Vector(x, y);
+	this->posicaoInicial = Vetor(x, y);
 }
 
 Projetil::~Projetil()
@@ -18,19 +18,59 @@ void Projetil::setAngulo(GLfloat valor)
 	this->angulo = valor;
 }
 
-void Projetil::setHeightJanela(GLfloat valor)
+void Projetil::setPosicaoInicial(GLfloat x, GLfloat y)
 {
-	this->heightJanela = valor;
+	this->posicaoInicial = Vetor(x, y);
 }
 
-void Projetil::setWidthJanela(GLfloat valor)
+int Projetil::getLargura()
 {
-	this->widthJanela = valor;
+	return this->largura;
+}
+
+int Projetil::getAltura()
+{
+	return this->altura;
+}
+
+Vetor Projetil::getPosicaoInicial()
+{
+	return this->posicaoInicial;
+}
+
+bool Projetil::isAtirado()
+{
+	return this->atirado;
+}
+
+GLfloat Projetil::getMagnitudeLancamento()
+{
+	return this->magnitudeLancamento;
 }
 
 void Projetil::setAtivo(bool valor)
 {
 	this->ativo = valor;
+}
+
+void Projetil::setAtirado(bool valor)
+{
+	this->atirado = valor;
+}
+
+void Projetil::setDirecaoLancamento(char valor)
+{
+	this->direcaoLancamento = valor;
+}
+
+void Projetil::setVelocidadeLancamento(GLfloat valor)
+{
+	this->velocidadeLancamento = valor;
+}
+
+void Projetil::setMagnitudeLancamento(GLfloat valor)
+{
+	this->magnitudeLancamento = valor;
 }
 
 void Projetil::desenhaProjetil()
@@ -45,25 +85,23 @@ void Projetil::desenhaProjetil()
 	glLoadIdentity();
 
 	// Inicializa a posição do objeto
-	glTranslatef(this->widthJanela / 2, this->heightJanela / 2, 0.0f);
-	glRotatef(this->angulo, 0.0f, 0.0f, 1.0f);
+	glTranslatef(this->posicaoInicial.getX(), this->posicaoInicial.getY(), 1.0f);
 
-	// Desenha o objeto
-	glBegin(GL_TRIANGLES);
+	// Define a cor do objeto
+	glColor3ub(255, 255, 0);
+
+	// Desenha o 
+	glBegin(GL_QUADS);
 	{
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glVertex2f(this->posicao.getX() - 10, this->posicao.getY());
-		glVertex2f(this->posicao.getX() + 10, this->posicao.getY());
-		glVertex2f(this->posicao.getX(), this->posicao.getY() + 10);
+		glVertex2f(0.0f, 0.0f);
+		glVertex2f(0.0f, 10.0f);
+		glVertex2f(5.0f, 10.0f);
+		glVertex2f(5.0f, 0.0f);
+
+		glVertex2f(0.0f, 0.0f);
+		glVertex2f(10.0f, 0.0f);
+		glVertex2f(10.0f, 5.0f);
+		glVertex2f(0.0f, 5.0f);
 	}
 	glEnd();
-
-	// Adiciona a velocidade ao projétil
-	this->posicao.add(this->velocidade);
-
-	// Verifica se o projétil passou do fim da tela, nesse caso não há motivo para redesenhá-lo
-	if (this->posicao.getY() > (this->heightJanela - 125))
-	{
-		this->setAtivo(false);
-	}
 }
