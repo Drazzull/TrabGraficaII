@@ -11,6 +11,7 @@
 #include "oozaru.h"
 #include "sol.h"
 #include "explosao.h"
+#include "atrator.h"
 
 #pragma region Propriedades
 // Tempo de refresh da tela
@@ -32,6 +33,9 @@ Sol sol;
 
 // Projétil
 Projetil projetil;
+
+// Atração para gravidade
+Atrator atracao;
 
 // Mouse
 Vetor _mouse(0, 0);
@@ -157,6 +161,9 @@ void carregarOozarus()
 	{
 		xInicial += 200;
 		xInicial = ObterLarguraPredio(xInicial + 50);
+
+		// Obtém a altura do novo prédio abaixo do gorila
+		yInicial = ObterAlturaPredio(xInicial + 50);
 	}
 
 	// Define as posições iniciais do segundo gorila
@@ -203,7 +210,7 @@ void desenha()
 	// Desenha o sol
 	sol.desenhaSol();
 
-	// Desenha o projétil
+	// Calcula a atração, aplica a força da mesma
 	projetil.desenhaProjetil();
 
 	// Carrega a matriz de identidade
@@ -230,47 +237,58 @@ void teclado(unsigned char key, int x, int y)
 		return;
 	}
 
+	// Tecla ESC
+	if (key == 27)
+	{
+		exit(0);
+		return;
+	}
+
+	// Tecla Enter
+	if (key == 13)
+	{
+		atributoEditado = "";
+
+		// Se estava editando o ângulo, apenas passa para o próximo atributo
+		if (atributo == 0)
+		{
+			atributo = 1;
+			return;
+		}
+
+		// Altera o atributo em edição
+		atributo = 0;
+
+		// Altera para a edição do segundo oozaru
+		if (oozaruAtual == 0)
+		{
+			oozaruAtual = 1;
+			anguloString1 = "";
+			velocidadeString1 = "";
+			return;
+		}
+
+		// Altera para a edição do primeiro oozaru
+		oozaruAtual = 0;
+		anguloString0 = "";
+		velocidadeString0 = "";
+		return;
+	}
+
+	// Backspace
+	if (key == 8)
+	{
+		atributoEditado = atributoEditado.substr(0, atributoEditado.length() - 1);
+	}
+
+	// Não permite números maiores que 4 dígitos
+	if (atributoEditado.length() == 4)
+	{
+		return;
+	}
+
 	switch (key)
 	{
-	case 27:
-		//Tecla ESC
-		exit(0);
-		break;
-
-	case 13:
-		// Altera o atributo em edição
-		switch (atributo)
-		{
-		case 1:
-			atributo = 0;
-			switch (oozaruAtual)
-			{
-			case 0:
-				oozaruAtual = 1;
-				anguloString1 = "";
-				velocidadeString1 = "";
-				break;
-
-			case 1:
-			default:
-				oozaruAtual = 0;
-				anguloString0 = "";
-				velocidadeString0 = "";
-				break;
-			}
-			break;
-
-		default:
-			atributo = 1;
-			break;
-		}
-		atributoEditado = "";
-		break;
-
-	case 8:
-		atributoEditado = atributoEditado.substr(0, atributoEditado.length() - 1);
-		break;
-
 	case 48:
 		atributoEditado += "0";
 		break;
@@ -350,6 +368,11 @@ void teclado(unsigned char key, int x, int y)
 
 void timer(int valor)
 {
+	// Atualiza as forças do projetil
+	Vetor force = atracao.calcularAtracao(projetil);
+	projetil.aplicarForca(force);
+	projetil.atualizar();
+
 	glutPostRedisplay();
 	glutTimerFunc(tempoRefresh, timer, 0);
 }

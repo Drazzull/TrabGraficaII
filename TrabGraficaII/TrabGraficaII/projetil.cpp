@@ -2,15 +2,34 @@
 
 Projetil::Projetil()
 {
+	this->massa = (this->largura / this->altura * 5);
+	this->velocidade = Vetor(0.f, 0.f);
+	this->aceleracao = Vetor(0.f, 0.f);
 }
 
 Projetil::Projetil(GLfloat x, GLfloat y)
 {
 	this->posicaoInicial = Vetor(x, y);
+	this->massa = (this->largura / this->altura * 5);
+	this->velocidade = Vetor(0.f, 0.f);
+	this->aceleracao = Vetor(0.f, 0.f);
 }
 
 Projetil::~Projetil()
 {
+}
+
+void Projetil::aplicarForca(Vetor forca)
+{
+	forca.div(this->massa);
+	this->aceleracao.add(forca);
+}
+
+void Projetil::atualizar()
+{
+	this->velocidade.add(this->aceleracao);
+	this->posicaoInicial.add(this->velocidade);
+	this->aceleracao.mult(0);
 }
 
 void Projetil::setAngulo(GLfloat valor)
@@ -46,6 +65,11 @@ bool Projetil::isAtirado()
 GLfloat Projetil::getMagnitudeLancamento()
 {
 	return this->magnitudeLancamento;
+}
+
+GLfloat Projetil::getMassa()
+{
+	return this->massa;
 }
 
 void Projetil::setAtivo(bool valor)

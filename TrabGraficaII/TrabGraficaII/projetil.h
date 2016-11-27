@@ -12,12 +12,19 @@ public:
 	// Destrutor
 	~Projetil();
 
+	// Aplica um vetor que representa uma força à partícula atual
+	void aplicarForca(Vetor forca);
+
+	// Atualiza a posição do objeto após a aplicação da velocidade
+	void atualizar();
+
 	// Getters
 	int getLargura();
 	int getAltura();
 	Vetor getPosicaoInicial();
 	bool isAtirado();
 	GLfloat getMagnitudeLancamento();
+	GLfloat getMassa();
 
 	// Setters
 	void setAtirado(bool valor);
@@ -47,6 +54,10 @@ private:
 	// Vetores
 	Vetor posicaoInicial;
 	Vetor velocidade = Vetor(0.0f, 1.0f);
+	Vetor aceleracao;
+
+	// Massa pra controle da gravidade
+	GLfloat massa;
 
 	// Propriedades com o tamanho máximo para achar a caixa de colisão
 	int largura = 10;

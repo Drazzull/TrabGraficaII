@@ -110,6 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="atrator.h" />
     <ClInclude Include="explosao.h" />
     <ClInclude Include="oozaru.h" />
     <ClInclude Include="predio.h" />
@@ -121,6 +122,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="atrator.cpp" />
     <ClCompile Include="explosao.cpp" />
     <ClCompile Include="oozaru.cpp" />
     <ClCompile Include="main.cpp" />
