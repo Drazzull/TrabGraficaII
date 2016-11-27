@@ -2,11 +2,16 @@
 
 Oozaru::Oozaru()
 {
+	this->posicaoInicial = Vetor(0.0f, 0.0f);
+	this->alturaMaxima = 45;
+	this->larguraMaxima = 45;
 }
 
 Oozaru::Oozaru(GLfloat xInicial, GLfloat yInicial)
 {
 	this->posicaoInicial = Vetor(xInicial, yInicial);
+	this->alturaMaxima = 45;
+	this->larguraMaxima = 45;
 }
 
 Oozaru::~Oozaru()
@@ -28,8 +33,29 @@ Vetor Oozaru::getPosicaoInicial()
 	return this->posicaoInicial;
 }
 
+int Oozaru::getAlturaMaxima()
+{
+	return this->alturaMaxima;
+}
+
+int Oozaru::getLarguraMaxima()
+{
+	return this->larguraMaxima;
+}
+
+bool Oozaru::isMorto()
+{
+	return this->morto;
+}
+
 void Oozaru::desenhaOozaru()
 {
+	// Não desenha se estiver morto
+	if (this->morto)
+	{
+		return;
+	}
+
 	// Carrega a matriz de identidade
 	glLoadIdentity();
 

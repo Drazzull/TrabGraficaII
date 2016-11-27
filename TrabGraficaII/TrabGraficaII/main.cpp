@@ -46,6 +46,7 @@ int anguloLancamento = 0;
 int velocidadeLancamento = 0;
 bool emLancamento = false;
 bool podeJogar = false;
+bool jogoTerminado = false;
 
 // Strings das mensagens
 int atributo = 0;
@@ -59,6 +60,9 @@ std::string velocidadeString1;
 int contadorAnimacaoSol = 0;
 int contadorAnimacaoGorila0 = 0;
 int contadorAnimacaoGorila1 = 0;
+
+// Controle para inicialização
+bool jogoIniciado = false;
 #pragma endregion
 
 #pragma region Inicialização
@@ -127,7 +131,7 @@ void carregarOozarus()
 	oozarus.clear();
 
 	// Calcula o tamanho da tela pela metade
-	int percTela = (int)(25 * width / 100);
+	int percTela = (int)(35 * width / 100);
 
 	// Calcula o X Inicial do primeiro gorila
 	GLfloat xInicial = rand() % percTela;
@@ -146,7 +150,7 @@ void carregarOozarus()
 	oozarus.push_back(Oozaru(xInicial, yInicial));
 
 	// Calcula o X Inicial do segundo gorila
-	percTela = (int)(75 * width / 100);
+	percTela = (int)(65 * width / 100);
 	xInicial = rand() % percTela + percTela;
 	if (xInicial > 904)
 	{
@@ -185,6 +189,7 @@ void inicializarObjetos()
 	contadorAnimacaoGorila0 = 0;
 	contadorAnimacaoGorila1 = 0;
 	contadorAnimacaoSol = 0;
+	jogoTerminado = false;
 
 	// Definir Prédios
 	carregarPredios();
@@ -206,6 +211,11 @@ void inicializarObjetos()
 
 	// Define que o jogador pode jogar
 	podeJogar = true;
+}
+
+void inicializarJogo()
+{
+	jogoIniciado = false;
 }
 #pragma endregion
 
@@ -229,12 +239,12 @@ Vetor obterVetorLancamento()
 
 bool detectarColisaoPredios()
 {
-	for each (Predio predio in predios)
+	for (int i = 0; i < predios.size(); i++)
 	{
-		if (((predio.getPosicao().getY() + predio.getAltura()) > projetil.getPosicaoInicial().getY()) &&
-			(predio.getPosicao().getY() < (projetil.getPosicaoInicial().getY() + projetil.getAltura())) &&
-			(predio.getPosicao().getX() < (projetil.getPosicaoInicial().getX() + projetil.getLargura())) &&
-			((predio.getPosicao().getX() + predio.getLargura()) > projetil.getPosicaoInicial().getX()))
+		if (((predios[i].getPosicao().getY() + predios[i].getAltura()) > projetil.getPosicaoInicial().getY()) &&
+			(predios[i].getPosicao().getY() < (projetil.getPosicaoInicial().getY() + projetil.getAltura())) &&
+			(predios[i].getPosicao().getX() < (projetil.getPosicaoInicial().getX() + projetil.getLargura())) &&
+			((predios[i].getPosicao().getX() + predios[i].getLargura()) > projetil.getPosicaoInicial().getX()))
 		{
 			// Cria uma nova explosão
 			explosoes.push_back(
@@ -250,19 +260,31 @@ bool detectarColisaoPredios()
 
 bool detectarColisaoSol()
 {
-	if (((sol.getPosicao().getY() + sol.getRaio() + 5) > projetil.getPosicaoInicial().getY()) &&
+	return (((sol.getPosicao().getY() + sol.getRaio() + 5) > projetil.getPosicaoInicial().getY()) &&
 		((sol.getPosicao().getY() - sol.getRaio() - 5) < (projetil.getPosicaoInicial().getY() + projetil.getAltura())) &&
 		((sol.getPosicao().getX() - sol.getRaio() - 5) < (projetil.getPosicaoInicial().getX() + projetil.getLargura())) &&
-		((sol.getPosicao().getX() + sol.getRaio() + 5) > projetil.getPosicaoInicial().getX()))
-	{
-		return true;
-	}
-
-	return false;
+		((sol.getPosicao().getX() + sol.getRaio() + 5) > projetil.getPosicaoInicial().getX()));
 }
 
 bool detectarColisaoOozarus()
 {
+	for (int i = 0; i < oozarus.size(); i++)
+	{
+		if (((oozarus[i].getPosicaoInicial().getY() + oozarus[i].getAlturaMaxima()) > projetil.getPosicaoInicial().getY()) &&
+			(oozarus[i].getPosicaoInicial().getY() < (projetil.getPosicaoInicial().getY() + projetil.getAltura())) &&
+			(oozarus[i].getPosicaoInicial().getX() < (projetil.getPosicaoInicial().getX() + projetil.getLargura())) &&
+			((oozarus[i].getPosicaoInicial().getX() + oozarus[i].getLarguraMaxima()) > projetil.getPosicaoInicial().getX()))
+		{
+			// Cria uma nova explosão
+			explosoes.push_back(
+				Explosao(
+					projetil.getPosicaoInicial().getX(),
+					projetil.getPosicaoInicial().getY()));
+			oozarus[i].setMorto(true);
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -288,15 +310,17 @@ void atirarProjetil()
 #pragma endregion
 
 #pragma region Controles do Glut
-void displayText(float x, float y, int r, int g, int b, const std::string mensagem)
+void displayText(float x, float y, int r, int g, int b, const std::string mensagem, void *font)
 {
 	glColor3ub(r, g, b);
 	glRasterPos2f(x, y);
 	for (int i = 0; i < mensagem.length(); i++)
 	{
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, mensagem[i]);
+		glutBitmapCharacter(font, mensagem[i]);
 	}
 }
+
+// Método de desenho da tela principal
 
 // Método principal de desenho
 void desenha()
@@ -304,6 +328,11 @@ void desenha()
 	// Limpa as matrizes
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
+
+	/*if (!jogoIniciado)
+	{
+
+	}*/
 
 	// Desenha os prédios
 	for (int i = 0; i < predios.size(); i++)
@@ -333,14 +362,43 @@ void desenha()
 	glLoadIdentity();
 
 	// Desenha os textos do player 1
-	displayText(30, height - 30, 255, 0, 0, "Player 1");
-	displayText(30, height - 50, 255, 0, 0, "Angulo: " + anguloString0);
-	displayText(30, height - 70, 255, 0, 0, "Velocidade: " + velocidadeString0);
+	displayText(
+		30, height - 30, 255, 0, 0, "Player 1", GLUT_BITMAP_HELVETICA_18);
+	displayText(
+		30, height - 50, 255, 0, 0, "Angulo: " + anguloString0, GLUT_BITMAP_HELVETICA_18);
+	displayText(
+		30, height - 70, 255, 0, 0, "Velocidade: " + velocidadeString0, GLUT_BITMAP_HELVETICA_18);
 
 	// Desenha os textos do player 2
-	displayText(width - 160, height - 30, 255, 0, 0, "Player 2");
-	displayText(width - 160, height - 50, 255, 0, 0, "Angulo: " + anguloString1);
-	displayText(width - 160, height - 70, 255, 0, 0, "Velocidade: " + velocidadeString1);
+	displayText(
+		width - 160, height - 30, 255, 0, 0, "Player 2", GLUT_BITMAP_HELVETICA_18);
+	displayText(
+		width - 160, height - 50, 255, 0, 0, "Angulo: " + anguloString1, GLUT_BITMAP_HELVETICA_18);
+	displayText(
+		width - 160, height - 70, 255, 0, 0, "Velocidade: " + velocidadeString1, GLUT_BITMAP_HELVETICA_18);
+
+	// Se o jogo foi terminado, desenha a tela de game over
+	if (jogoTerminado)
+	{
+		// Carrega a matriz de identidade
+		glLoadIdentity();
+
+		// Desenha o texto de game over
+		displayText(width / 2, (height / 2) - 30, 255, 0, 0, "GAME OVER", GLUT_BITMAP_TIMES_ROMAN_24);
+		for (int i = 0; i < oozarus.size(); i++)
+		{
+			if (oozarus[i].isMorto())
+			{
+				std::string ganhador = i == 0 ? "2" : "1";
+				displayText(
+					width / 2,
+					height / 2,
+					255, 0, 0,
+					"Player " + ganhador + " ganhou",
+					GLUT_BITMAP_TIMES_ROMAN_24);
+			}
+		}
+	}
 
 	glutSwapBuffers();
 }
@@ -356,6 +414,8 @@ void teclado(unsigned char key, int x, int y)
 	// Tecla ESC
 	if (key == 18)
 	{
+		//jogoIniciado = false;
+		//inicializarJogo();
 		inicializarObjetos();
 		return;
 	}
@@ -368,7 +428,7 @@ void teclado(unsigned char key, int x, int y)
 	}
 
 	// Verifica se o jogador pode alterar os valores
-	if (!podeJogar)
+	if (!podeJogar || jogoTerminado)
 	{
 		return;
 	}
@@ -552,6 +612,9 @@ void timer(int valor)
 		projetil = Projetil(
 			oozarus[oozaruAtual].getPosicaoInicial().getX() + 50,
 			oozarus[oozaruAtual].getPosicaoInicial().getY() + 10);
+
+		// Terminou o jogo
+		jogoTerminado = true;
 	}
 
 	if (detectarColisaoLimitesHorizontaisTela())
@@ -610,6 +673,7 @@ int main(int argc, char **argv)
 	glutInitWindowPosition(10, 10);
 	glutCreateWindow("Gorillas - Arthur B. Bilibio, Johnatan da Rosa, Wagner Casagrande");
 
+	//inicializarJogo();
 	inicializarObjetos();
 
 	// Define o tipo da projeção

@@ -37,7 +37,7 @@ void Explosao::desenhaExplosao()
 		}
 	}
 
-	int raio = 15;
+	int raio = 30;
 	glBegin(GL_POLYGON);
 	{
 		for (int angulo = 0; angulo <= 360; angulo++)
