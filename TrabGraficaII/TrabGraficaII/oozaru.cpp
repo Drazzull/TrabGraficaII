@@ -88,40 +88,20 @@ void Oozaru::desenhaOozaru()
 		glVertex2f(40.0f, 30.0f);
 		glVertex2f(30.0f, 30.0f);
 
-		if (this->animarEsquerdo)
-		{
-			glVertex2f(0.0f, 30.0f);
-			glVertex2f(0.0f, 40.0f);
-			glVertex2f(5.0f, 40.0f);
-			glVertex2f(5.0f, 30.0f);
-		}
-		else
-		{
-			glVertex2f(0.0f, 30.0f);
-			glVertex2f(0.0f, 10.0f);
-			glVertex2f(5.0f, 10.0f);
-			glVertex2f(5.0f, 30.0f);
-		}
+		glVertex2f(0.0f, 30.0f);
+		glVertex2f(0.0f, this->animarEsquerdo ? 40.0f : 10.0f);
+		glVertex2f(5.0f, this->animarEsquerdo ? 40.0f : 10.0f);
+		glVertex2f(5.0f, 30.0f);
 
 		glVertex2f(0.0f, 20.0f);
 		glVertex2f(0.0f, 30.0f);
 		glVertex2f(50.0f, 30.0f);
 		glVertex2f(50.0f, 20.0f);
 
-		if (this->animarDireito)
-		{
-			glVertex2f(45.0f, 30.0f);
-			glVertex2f(45.0f, 40.0f);
-			glVertex2f(50.0f, 40.0f);
-			glVertex2f(50.0f, 30.0f);
-		}
-		else
-		{
-			glVertex2f(45.0f, 30.0f);
-			glVertex2f(45.0f, 10.0f);
-			glVertex2f(50.0f, 10.0f);
-			glVertex2f(50.0f, 30.0f);
-		}
+		glVertex2f(45.0f, 30.0f);
+		glVertex2f(45.0f, this->animarDireito ? 40.0f : 10.0f);
+		glVertex2f(50.0f, this->animarDireito ? 40.0f : 10.0f);
+		glVertex2f(50.0f, 30.0f);
 	}
 	glEnd();
 }

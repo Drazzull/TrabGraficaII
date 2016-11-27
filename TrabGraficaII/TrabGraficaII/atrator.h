@@ -6,7 +6,11 @@ class Atrator
 public:
 	Atrator();
 	~Atrator();
+	
+	// Setters
+	void setGravidade(GLfloat valor);
 
+	// Calcula a atração
 	Vetor calcularAtracao(Projetil m);
 
 private:

@@ -19,4 +19,7 @@ private:
 	Vetor posicaoInicial;
 	bool explosaoTerminada;
 	int contadorTermino;
+
+	// Define a cor da explosão
+	void definirCorExplosao();
 };

@@ -16,6 +16,11 @@ float Atrator::constrain(float value, float min, float max)
 	return (value > max) ? max : min;
 }
 
+void Atrator::setGravidade(GLfloat valor)
+{
+	this->G = valor;
+}
+
 Vetor Atrator::calcularAtracao(Projetil m)
 {
 	if (!m.isAtirado())

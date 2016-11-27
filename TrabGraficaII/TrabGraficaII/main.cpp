@@ -47,14 +47,16 @@ int velocidadeLancamento = 0;
 bool emLancamento = false;
 bool podeJogar = false;
 bool jogoTerminado = false;
+float gravidade;
 
 // Strings das mensagens
-int atributo = 0;
+int atributo = 3;
 std::string atributoEditado;
 std::string anguloString0;
 std::string velocidadeString0;
 std::string anguloString1;
 std::string velocidadeString1;
+std::string gravidadeString;
 
 // Controle para animação
 int contadorAnimacaoSol = 0;
@@ -209,13 +211,21 @@ void inicializarObjetos()
 	projetil.setAtirado(false);
 	projetil.zerarForcas();
 
+	// Define a gravidade da atração
+	atracao.setGravidade(gravidade);
+
 	// Define que o jogador pode jogar
 	podeJogar = true;
 }
 
 void inicializarJogo()
 {
+	atributo = 3;
+	podeJogar = true;
 	jogoIniciado = false;
+	gravidadeString = "9.8";
+	gravidade = stof(gravidadeString);
+	atributoEditado = gravidadeString;
 }
 #pragma endregion
 
@@ -321,6 +331,26 @@ void displayText(float x, float y, int r, int g, int b, const std::string mensag
 }
 
 // Método de desenho da tela principal
+void desenhaTelaConfig()
+{
+	// Carrega a matriz de identidade
+	glLoadIdentity();
+
+	// Desenha o "fundo"
+	glColor3ub(0, 0, 0);
+	glBegin(GL_QUADS);
+	{
+		glVertex2f(0.0f, 0.0f);
+		glVertex2f(0.0f, height);
+		glVertex2f(width, height);
+		glVertex2f(width, 0.0f);
+	}
+	glEnd();
+
+	// Inicialização do jogo
+	displayText(width / 2, (height / 2), 255, 0, 0, "Bem vindo", GLUT_BITMAP_TIMES_ROMAN_24);
+	displayText(width / 2, (height / 2) - 30, 255, 0, 0, "Gravidade: " + gravidadeString, GLUT_BITMAP_TIMES_ROMAN_24);
+}
 
 // Método principal de desenho
 void desenha()
@@ -329,10 +359,13 @@ void desenha()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 
-	/*if (!jogoIniciado)
+	// Se o jogo não foi inicializado, desenha a tela de configuração
+	if (!jogoIniciado)
 	{
-
-	}*/
+		desenhaTelaConfig();
+		glutSwapBuffers();
+		return;
+	}
 
 	// Desenha os prédios
 	for (int i = 0; i < predios.size(); i++)
@@ -415,12 +448,11 @@ void teclado(unsigned char key, int x, int y)
 		return;
 	}
 
-	// Tecla ESC
+	// Tecla CTRL + R
 	if (key == 18)
 	{
-		//jogoIniciado = false;
-		//inicializarJogo();
-		inicializarObjetos();
+		jogoIniciado = false;
+		inicializarJogo();
 		return;
 	}
 
@@ -432,7 +464,7 @@ void teclado(unsigned char key, int x, int y)
 	}
 
 	// Verifica se o jogador pode alterar os valores
-	if (!podeJogar || jogoTerminado)
+	if (!podeJogar)
 	{
 		return;
 	}
@@ -441,6 +473,14 @@ void teclado(unsigned char key, int x, int y)
 	if (key == 13)
 	{
 		atributoEditado = "";
+
+		// Inicializa o jogo
+		if (!jogoIniciado)
+		{
+			jogoIniciado = true;
+			inicializarObjetos();
+			return;
+		}
 
 		// Se estava editando o ângulo, apenas passa para o próximo atributo
 		if (atributo == 0)
@@ -485,6 +525,14 @@ void teclado(unsigned char key, int x, int y)
 
 	switch (key)
 	{
+	case 46:
+		// Adiciona o ponto, apenas se este não existe
+		if (atributoEditado.find(".") == std::string::npos)
+		{
+			atributoEditado += ".";
+		}
+		break;
+
 	case 48:
 		atributoEditado += "0";
 		break;
@@ -528,6 +576,11 @@ void teclado(unsigned char key, int x, int y)
 
 	switch (atributo)
 	{
+	case 3:
+		gravidadeString = atributoEditado;
+		gravidade = gravidadeString != "" ? stof(gravidadeString) : 0;
+		break;
+
 	case 1:
 		switch (oozaruAtual)
 		{
@@ -564,6 +617,14 @@ void teclado(unsigned char key, int x, int y)
 
 void timer(int valor)
 {
+	// Verifica se o jogo foi inicializado
+	if (!jogoIniciado)
+	{
+		glutPostRedisplay();
+		glutTimerFunc(tempoRefresh, timer, 0);
+		return;
+	}
+
 	// Atualiza as forças do projetil
 	Vetor force = atracao.calcularAtracao(projetil);
 	projetil.aplicarForca(force);
@@ -650,7 +711,7 @@ void timer(int valor)
 	{
 		contadorAnimacaoGorila0 = 0;
 		oozarus[0].setAnimarEsquerdo(false);
-		oozarus[1].setAnimarDireito(false);
+		oozarus[0].setAnimarDireito(false);
 	}
 
 	// Anima o braço do segundo gorila
@@ -679,8 +740,8 @@ int main(int argc, char **argv)
 	glutInitWindowPosition(10, 10);
 	glutCreateWindow("Gorillas - Arthur B. Bilibio, Johnatan da Rosa, Wagner Casagrande");
 
-	//inicializarJogo();
-	inicializarObjetos();
+	// Inicializa o jogo
+	inicializarJogo();
 
 	// Define o tipo da projeção
 	glMatrixMode(GL_PROJECTION);

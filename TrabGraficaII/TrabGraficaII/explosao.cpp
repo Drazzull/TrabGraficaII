@@ -12,6 +12,24 @@ Explosao::~Explosao()
 {
 }
 
+void Explosao::definirCorExplosao()
+{
+	if (this->explosaoTerminada)
+	{
+		glColor3ub(0, 0, 0);
+		return;
+	}
+
+	glColor3ub(255, 255, 0);
+
+	// Verifica se a explosão terminou
+	contadorTermino++;
+	if (contadorTermino == 5)
+	{
+		this->explosaoTerminada = true;
+	}
+}
+
 void Explosao::desenhaExplosao()
 {
 	// Carrega a matriz de identidade
@@ -21,22 +39,7 @@ void Explosao::desenhaExplosao()
 	glTranslatef(this->posicaoInicial.getX(), this->posicaoInicial.getY(), 1.0f);
 
 	// Desenha o objeto
-	if (this->explosaoTerminada)
-	{
-		glColor3ub(0, 0, 0);
-	}
-	else
-	{
-		glColor3ub(255, 255, 0);
-
-		// Verifica se a explosão terminou
-		contadorTermino++;
-		if (contadorTermino == 5)
-		{
-			this->explosaoTerminada = true;
-		}
-	}
-
+	this->definirCorExplosao();
 	int raio = 30;
 	glBegin(GL_POLYGON);
 	{
