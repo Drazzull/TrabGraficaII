@@ -28,6 +28,7 @@ public:
 	bool isAtirado();
 	GLfloat getMagnitudeLancamento();
 	GLfloat getMassa();
+	GLfloat getAngulo();
 
 	// Setters
 	void setAtirado(bool valor);

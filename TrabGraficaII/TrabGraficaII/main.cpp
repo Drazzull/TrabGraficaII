@@ -62,6 +62,7 @@ std::string gravidadeString;
 int contadorAnimacaoSol = 0;
 int contadorAnimacaoGorila0 = 0;
 int contadorAnimacaoGorila1 = 0;
+int contadorAnimacaoProjetil = 0;
 
 // Controle para inicialização
 bool jogoIniciado = false;
@@ -207,7 +208,7 @@ void inicializarObjetos()
 	projetil = Projetil(
 		oozarus[0].getPosicaoInicial().getX() + 50,
 		oozarus[0].getPosicaoInicial().getY() + 10);
-	projetil.setAngulo(0);
+	projetil.setAngulo(0.0f);
 	projetil.setAtirado(false);
 	projetil.zerarForcas();
 
@@ -388,8 +389,11 @@ void desenha()
 	// Desenha o sol
 	sol.desenhaSol();
 
-	// Calcula a atração, aplica a força da mesma
-	projetil.desenhaProjetil();
+	// Desenha o projétil
+	if (!jogoTerminado)
+	{
+		projetil.desenhaProjetil();
+	}
 
 	// Carrega a matriz de identidade
 	glLoadIdentity();
@@ -523,6 +527,11 @@ void teclado(unsigned char key, int x, int y)
 		return;
 	}
 
+	if (jogoTerminado)
+	{
+		return;
+	}
+
 	switch (key)
 	{
 	case 46:
@@ -636,6 +645,7 @@ void timer(int valor)
 		// Define que o projétil não está mais sendo atirado
 		projetil.setAtirado(false);
 		podeJogar = true;
+		projetil.setAngulo(0.0f);
 
 		// Zera as forças do projétil
 		projetil.zerarForcas();
@@ -721,6 +731,20 @@ void timer(int valor)
 		contadorAnimacaoGorila1 = 0;
 		oozarus[1].setAnimarEsquerdo(false);
 		oozarus[1].setAnimarDireito(false);
+	}
+
+	if (projetil.isAtirado())
+	{
+		contadorAnimacaoProjetil++;
+		if (contadorAnimacaoProjetil == 5)
+		{
+			contadorAnimacaoProjetil = 0;
+			projetil.setAngulo(projetil.getAngulo() + 90);
+			if (projetil.getAngulo() == 360)
+			{
+				projetil.setAngulo(0.0f);
+			}
+		}
 	}
 
 	glutPostRedisplay();

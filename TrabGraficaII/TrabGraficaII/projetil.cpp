@@ -5,6 +5,7 @@ Projetil::Projetil()
 	this->massa = (this->largura / this->altura * 5);
 	this->velocidade = Vetor(0.f, 0.f);
 	this->aceleracao = Vetor(0.f, 0.f);
+	this->angulo = 0.0f;
 }
 
 Projetil::Projetil(GLfloat x, GLfloat y)
@@ -13,6 +14,7 @@ Projetil::Projetil(GLfloat x, GLfloat y)
 	this->massa = (this->largura / this->altura * 5);
 	this->velocidade = Vetor(0.f, 0.f);
 	this->aceleracao = Vetor(0.f, 0.f);
+	this->angulo = 0.0f;
 }
 
 Projetil::~Projetil()
@@ -68,6 +70,11 @@ GLfloat Projetil::getMassa()
 	return this->massa;
 }
 
+GLfloat Projetil::getAngulo()
+{
+	return this->angulo;
+}
+
 void Projetil::setAngulo(GLfloat valor)
 {
 	this->angulo = valor;
@@ -105,6 +112,7 @@ void Projetil::desenhaProjetil()
 
 	// Inicializa a posição do objeto
 	glTranslatef(this->posicaoInicial.getX(), this->posicaoInicial.getY(), 1.0f);
+	glRotatef(this->angulo, 0.0f, 0.0f, 1.0f);
 
 	// Define a cor do objeto
 	glColor3ub(255, 255, 0);
