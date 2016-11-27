@@ -3,20 +3,37 @@
 
 Sol::Sol()
 {
-	this->solAcertado = true;
-	this->controleSolAcertado = 0;
+	this->solAcertado = false;
 	this->posicaoInicial = Vetor(0, 0);
+	this->raioCentral = 40;
 }
 
 Sol::Sol(GLfloat xInicial, GLfloat yInicial)
 {
-	this->solAcertado = true;
-	this->controleSolAcertado = 0;
+	this->solAcertado = false;
 	this->posicaoInicial = Vetor(xInicial, yInicial);
+	this->raioCentral = 40;
 }
 
 Sol::~Sol()
 {
+}
+
+// Getters
+Vetor Sol::getPosicao()
+{
+	return this->posicaoInicial;
+}
+
+int Sol::getRaio()
+{
+	return this->raioCentral;
+}
+
+// Setters
+void Sol::setSolAcertado(bool valor)
+{
+	this->solAcertado = valor;
 }
 
 void Sol::coeficientesBezier(int n, int *c)
@@ -102,14 +119,6 @@ void Sol::desenhaBoca()
 		}
 	}
 	glEnd();
-
-	// Apresenta o sol acertado por apenas um tempo
-	this->controleSolAcertado++;
-	if (this->controleSolAcertado = 500)
-	{
-		this->controleSolAcertado = 0;
-		this->solAcertado = false;
-	}
 }
 
 void Sol::desenhaOlhos()
@@ -165,7 +174,7 @@ void Sol::desenhaSol()
 
 	// Desenha o objeto
 	glColor3ub(255, 255, 255);
-	GLfloat raio = 50;
+	GLfloat raio = this->raioCentral + 10;
 	glBegin(GL_POLYGON);
 	{
 		for (int angulo = 0; angulo <= 360; angulo++)
@@ -179,7 +188,7 @@ void Sol::desenhaSol()
 
 	// Desenha o objeto
 	glColor3ub(255, 255, 150);
-	raio = 47;
+	raio = this->raioCentral + 7;
 	glBegin(GL_POLYGON);
 	{
 		for (int angulo = 0; angulo <= 360; angulo++)
@@ -193,7 +202,7 @@ void Sol::desenhaSol()
 
 	// Desenha o objeto
 	glColor3ub(255, 255, 100);
-	raio = 45;
+	raio = this->raioCentral + 5;
 	glBegin(GL_POLYGON);
 	{
 		for (int angulo = 0; angulo <= 360; angulo++)
@@ -207,7 +216,7 @@ void Sol::desenhaSol()
 
 	// Desenha o objeto
 	glColor3ub(255, 255, 0);
-	raio = 40;
+	raio = this->raioCentral;
 	glBegin(GL_POLYGON);
 	{
 		for (int angulo = 0; angulo <= 360; angulo++)

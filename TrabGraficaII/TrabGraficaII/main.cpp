@@ -37,9 +37,6 @@ Projetil projetil;
 // Atração para gravidade
 Atrator atracao;
 
-// Mouse
-Vetor _mouse(0, 0);
-
 // Define os tamanhos da janela
 GLfloat width = 1024.0f;
 GLfloat height = 768.0f;
@@ -57,6 +54,11 @@ std::string anguloString0;
 std::string velocidadeString0;
 std::string anguloString1;
 std::string velocidadeString1;
+
+// Controle para animação
+int contadorAnimacaoSol = 0;
+int contadorAnimacaoGorila0 = 0;
+int contadorAnimacaoGorila1 = 0;
 #pragma endregion
 
 #pragma region Inicialização
@@ -169,6 +171,21 @@ void inicializarObjetos()
 	oozarus.clear();
 	explosoes.clear();
 
+	// Zera as propriedades
+	oozaruAtual = 0;
+	anguloLancamento = 0;
+	velocidadeLancamento = 0;
+	emLancamento = false;
+	atributo = 0;
+	atributoEditado = "";
+	anguloString0 = "";
+	velocidadeString0 = "";
+	anguloString1 = "";
+	velocidadeString1 = "";
+	contadorAnimacaoGorila0 = 0;
+	contadorAnimacaoGorila1 = 0;
+	contadorAnimacaoSol = 0;
+
 	// Definir Prédios
 	carregarPredios();
 
@@ -177,6 +194,7 @@ void inicializarObjetos()
 
 	// Define a posição inicial do sol
 	sol = Sol(width / 2, height - 70);
+	sol.setSolAcertado(false);
 
 	// Define a posição inicial do projétil
 	projetil = Projetil(
@@ -232,6 +250,14 @@ bool detectarColisaoPredios()
 
 bool detectarColisaoSol()
 {
+	if (((sol.getPosicao().getY() + sol.getRaio() + 5) > projetil.getPosicaoInicial().getY()) &&
+		((sol.getPosicao().getY() - sol.getRaio() - 5) < (projetil.getPosicaoInicial().getY() + projetil.getAltura())) &&
+		((sol.getPosicao().getX() - sol.getRaio() - 5) < (projetil.getPosicaoInicial().getX() + projetil.getLargura())) &&
+		((sol.getPosicao().getX() + sol.getRaio() + 5) > projetil.getPosicaoInicial().getX()))
+	{
+		return true;
+	}
+
 	return false;
 }
 
@@ -249,7 +275,7 @@ bool detectarColisaoLimitesHorizontaisTela()
 void atirarProjetil()
 {
 	// Anima o gorila atual
-	oozarus[oozaruAtual].animarBraco();
+	oozarus[oozaruAtual].setAnimar(true);
 	projetil.setPosicaoInicial(
 		projetil.getPosicaoInicial().getX(),
 		projetil.getPosicaoInicial().getY() + 30);
@@ -497,6 +523,9 @@ void timer(int valor)
 
 	if (detectarColisaoSol())
 	{
+		// Define que o sol será animado
+		sol.setSolAcertado(true);
+
 		// Define que o projétil não está mais sendo atirado
 		projetil.setAtirado(false);
 		podeJogar = true;
@@ -538,6 +567,30 @@ void timer(int valor)
 		projetil = Projetil(
 			oozarus[oozaruAtual].getPosicaoInicial().getX() + 50,
 			oozarus[oozaruAtual].getPosicaoInicial().getY() + 10);
+	}
+
+	// Anima o sol
+	contadorAnimacaoSol++;
+	if (contadorAnimacaoSol == 40)
+	{
+		contadorAnimacaoSol = 0;
+		sol.setSolAcertado(false);
+	}
+
+	// Anima o braço do primeiro gorila
+	contadorAnimacaoGorila0++;
+	if (contadorAnimacaoGorila0 == 30)
+	{
+		contadorAnimacaoGorila0 = 0;
+		oozarus[0].setAnimar(false);
+	}
+
+	// Anima o braço do segundo gorila
+	contadorAnimacaoGorila1++;
+	if (contadorAnimacaoGorila1 == 30)
+	{
+		contadorAnimacaoGorila1 = 0;
+		oozarus[1].setAnimar(false);
 	}
 
 	glutPostRedisplay();

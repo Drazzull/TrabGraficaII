@@ -14,17 +14,16 @@ public:
 
 	// Setters
 	void setMorto(bool valor);
+	void setAnimar(bool valor);
 
 	// Getters
 	Vetor getPosicaoInicial();
 
 	// Métodos de desenho
-	void animarBraco();
 	void desenhaOozaru();
 
 private:
 	Vetor posicaoInicial;
 	bool morto = false;
 	bool animar = false;
-	int contadorAnimacao = 0;
 };
