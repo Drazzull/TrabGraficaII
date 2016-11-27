@@ -297,7 +297,7 @@ bool detectarColisaoLimitesHorizontaisTela()
 void atirarProjetil()
 {
 	// Anima o gorila atual
-	oozarus[oozaruAtual].setAnimar(true);
+	oozarus[oozaruAtual].setAnimarDireito(true);
 	projetil.setPosicaoInicial(
 		projetil.getPosicaoInicial().getX(),
 		projetil.getPosicaoInicial().getY() + 30);
@@ -396,7 +396,11 @@ void desenha()
 					255, 0, 0,
 					"Player " + ganhador + " ganhou",
 					GLUT_BITMAP_TIMES_ROMAN_24);
+				continue;
 			}
+
+			oozarus[i].setAnimarDireito(true);
+			oozarus[i].setAnimarEsquerdo(true);
 		}
 	}
 
@@ -645,7 +649,8 @@ void timer(int valor)
 	if (contadorAnimacaoGorila0 == 30)
 	{
 		contadorAnimacaoGorila0 = 0;
-		oozarus[0].setAnimar(false);
+		oozarus[0].setAnimarEsquerdo(false);
+		oozarus[1].setAnimarDireito(false);
 	}
 
 	// Anima o braço do segundo gorila
@@ -653,7 +658,8 @@ void timer(int valor)
 	if (contadorAnimacaoGorila1 == 30)
 	{
 		contadorAnimacaoGorila1 = 0;
-		oozarus[1].setAnimar(false);
+		oozarus[1].setAnimarEsquerdo(false);
+		oozarus[1].setAnimarDireito(false);
 	}
 
 	glutPostRedisplay();

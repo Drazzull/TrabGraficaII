@@ -23,9 +23,14 @@ void Oozaru::setMorto(bool valor)
 	this->morto = valor;
 }
 
-void Oozaru::setAnimar(bool valor)
+void Oozaru::setAnimarDireito(bool valor)
 {
-	this->animar = valor;
+	this->animarDireito = valor;
+}
+
+void Oozaru::setAnimarEsquerdo(bool valor)
+{
+	this->animarEsquerdo = valor;
 }
 
 Vetor Oozaru::getPosicaoInicial()
@@ -83,17 +88,27 @@ void Oozaru::desenhaOozaru()
 		glVertex2f(40.0f, 30.0f);
 		glVertex2f(30.0f, 30.0f);
 
-		glVertex2f(0.0f, 30.0f);
-		glVertex2f(0.0f, 10.0f);
-		glVertex2f(5.0f, 10.0f);
-		glVertex2f(5.0f, 30.0f);
+		if (this->animarEsquerdo)
+		{
+			glVertex2f(0.0f, 30.0f);
+			glVertex2f(0.0f, 40.0f);
+			glVertex2f(5.0f, 40.0f);
+			glVertex2f(5.0f, 30.0f);
+		}
+		else
+		{
+			glVertex2f(0.0f, 30.0f);
+			glVertex2f(0.0f, 10.0f);
+			glVertex2f(5.0f, 10.0f);
+			glVertex2f(5.0f, 30.0f);
+		}
 
 		glVertex2f(0.0f, 20.0f);
 		glVertex2f(0.0f, 30.0f);
 		glVertex2f(50.0f, 30.0f);
 		glVertex2f(50.0f, 20.0f);
 
-		if (this->animar)
+		if (this->animarDireito)
 		{
 			glVertex2f(45.0f, 30.0f);
 			glVertex2f(45.0f, 40.0f);

@@ -14,7 +14,8 @@ public:
 
 	// Setters
 	void setMorto(bool valor);
-	void setAnimar(bool valor);
+	void setAnimarEsquerdo(bool valor);
+	void setAnimarDireito(bool valor);
 
 	// Getters
 	Vetor getPosicaoInicial();
@@ -28,7 +29,12 @@ public:
 private:
 	Vetor posicaoInicial;
 	bool morto = false;
-	bool animar = false;
 	int larguraMaxima;
 	int alturaMaxima;
+
+	// Anima o braço de lançamento
+	bool animarDireito = false;
+
+	// Anima ambos os braços
+	bool animarEsquerdo = false;
 };
