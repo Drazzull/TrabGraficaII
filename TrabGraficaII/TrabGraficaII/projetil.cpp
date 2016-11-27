@@ -32,14 +32,10 @@ void Projetil::atualizar()
 	this->aceleracao.mult(0);
 }
 
-void Projetil::setAngulo(GLfloat valor)
+void Projetil::zerarForcas()
 {
-	this->angulo = valor;
-}
-
-void Projetil::setPosicaoInicial(GLfloat x, GLfloat y)
-{
-	this->posicaoInicial = Vetor(x, y);
+	this->velocidade = Vetor(0, 0);
+	this->aceleracao = Vetor(0, 0);
 }
 
 int Projetil::getLargura()
@@ -72,9 +68,14 @@ GLfloat Projetil::getMassa()
 	return this->massa;
 }
 
-void Projetil::setAtivo(bool valor)
+void Projetil::setAngulo(GLfloat valor)
 {
-	this->ativo = valor;
+	this->angulo = valor;
+}
+
+void Projetil::setPosicaoInicial(GLfloat x, GLfloat y)
+{
+	this->posicaoInicial = Vetor(x, y);
 }
 
 void Projetil::setAtirado(bool valor)
@@ -99,12 +100,6 @@ void Projetil::setMagnitudeLancamento(GLfloat valor)
 
 void Projetil::desenhaProjetil()
 {
-	// Não desenha se não tiver ativo
-	if (!this->ativo)
-	{
-		return;
-	}
-
 	// Carrega a matriz de identidade
 	glLoadIdentity();
 

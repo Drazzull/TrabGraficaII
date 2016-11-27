@@ -48,6 +48,7 @@ GLfloat height = 768.0f;
 int anguloLancamento = 0;
 int velocidadeLancamento = 0;
 bool emLancamento = false;
+bool podeJogar = false;
 
 // Strings das mensagens
 int atributo = 0;
@@ -59,7 +60,6 @@ std::string velocidadeString1;
 #pragma endregion
 
 #pragma region Inicialização
-
 // Método pra definir os prédios
 void carregarPredios()
 {
@@ -80,7 +80,7 @@ void carregarPredios()
 	{
 		// Definir a altura e largura randonômicamente
 		altura = rand() % percTela + percTela;
-		largura = rand() % 150 + 50;
+		largura = rand() % 100 + 120;
 
 		// Define o prédio
 		predios.push_back(Predio(xInicial, yInicial, largura, altura));
@@ -125,7 +125,7 @@ void carregarOozarus()
 	oozarus.clear();
 
 	// Calcula o tamanho da tela pela metade
-	int percTela = (int)(width / 2);
+	int percTela = (int)(25 * width / 100);
 
 	// Calcula o X Inicial do primeiro gorila
 	GLfloat xInicial = rand() % percTela;
@@ -135,15 +135,16 @@ void carregarOozarus()
 	}
 
 	// Obtém a altura do prédio abaixo do gorila
-	GLfloat yInicial = ObterAlturaPredio(xInicial + 30);
+	GLfloat yInicial = ObterAlturaPredio(xInicial + 52);
 
 	// Recalcula o X para garantir que vá ficar sobre o prédio
-	xInicial = ObterLarguraPredio(xInicial + 50);
+	xInicial = ObterLarguraPredio(xInicial + 52);
 
 	// Define as posições iniciais do primeiro gorila
 	oozarus.push_back(Oozaru(xInicial, yInicial));
 
 	// Calcula o X Inicial do segundo gorila
+	percTela = (int)(75 * width / 100);
 	xInicial = rand() % percTela + percTela;
 	if (xInicial > 904)
 	{
@@ -151,23 +152,112 @@ void carregarOozarus()
 	}
 
 	// Obtém a altura do prédio abaixo do gorila
-	yInicial = ObterAlturaPredio(xInicial + 50);
+	yInicial = ObterAlturaPredio(xInicial + 52);
 
 	// Recalcula o X para garantir que vá ficar sobre o prédio
-	xInicial = ObterLarguraPredio(xInicial + 50);
-
-	// Verifica se os dois gorilas ficaram com a mesma posição
-	if (xInicial == oozarus[0].getPosicaoInicial().getX())
-	{
-		xInicial += 200;
-		xInicial = ObterLarguraPredio(xInicial + 50);
-
-		// Obtém a altura do novo prédio abaixo do gorila
-		yInicial = ObterAlturaPredio(xInicial + 50);
-	}
+	xInicial = ObterLarguraPredio(xInicial + 52);
 
 	// Define as posições iniciais do segundo gorila
 	oozarus.push_back(Oozaru(xInicial, yInicial));
+}
+
+// Método para inicializar os objetos
+void inicializarObjetos()
+{
+	// Limpa as listas
+	predios.clear();
+	oozarus.clear();
+	explosoes.clear();
+
+	// Definir Prédios
+	carregarPredios();
+
+	// Definir posição dos gorillas
+	carregarOozarus();
+
+	// Define a posição inicial do sol
+	sol = Sol(width / 2, height - 70);
+
+	// Define a posição inicial do projétil
+	projetil = Projetil(
+		oozarus[0].getPosicaoInicial().getX() + 50,
+		oozarus[0].getPosicaoInicial().getY() + 10);
+	projetil.setAngulo(0);
+	projetil.setAtirado(false);
+	projetil.zerarForcas();
+
+	// Define que o jogador pode jogar
+	podeJogar = true;
+}
+#pragma endregion
+
+#pragma region Funções privadas
+Vetor obterVetorLancamento()
+{
+	switch (oozaruAtual)
+	{
+	case 0:
+		return Vetor(cos(anguloLancamento * PI / 180) * velocidadeLancamento,
+			(sin(anguloLancamento * PI / 180) * velocidadeLancamento));
+
+	case 1:
+		return Vetor(cos(anguloLancamento * PI / 180) * velocidadeLancamento * -1,
+			(sin(anguloLancamento * PI / 180) * velocidadeLancamento));
+
+	default:
+		return Vetor(0, 0);
+	}
+}
+
+bool detectarColisaoPredios()
+{
+	for each (Predio predio in predios)
+	{
+		if (((predio.getPosicao().getY() + predio.getAltura()) > projetil.getPosicaoInicial().getY()) &&
+			(predio.getPosicao().getY() < (projetil.getPosicaoInicial().getY() + projetil.getAltura())) &&
+			(predio.getPosicao().getX() < (projetil.getPosicaoInicial().getX() + projetil.getLargura())) &&
+			((predio.getPosicao().getX() + predio.getLargura()) > projetil.getPosicaoInicial().getX()))
+		{
+			// Cria uma nova explosão
+			explosoes.push_back(
+				Explosao(
+					projetil.getPosicaoInicial().getX(),
+					projetil.getPosicaoInicial().getY()));
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool detectarColisaoSol()
+{
+	return false;
+}
+
+bool detectarColisaoOozarus()
+{
+	return false;
+}
+
+bool detectarColisaoLimitesHorizontaisTela()
+{
+	return ((projetil.getPosicaoInicial().getX() > width + 10) ||
+		(projetil.getPosicaoInicial().getX() + projetil.getLargura() < -10));
+}
+
+void atirarProjetil()
+{
+	// Anima o gorila atual
+	oozarus[oozaruAtual].animarBraco();
+	projetil.setPosicaoInicial(
+		projetil.getPosicaoInicial().getX(),
+		projetil.getPosicaoInicial().getY() + 30);
+
+	// Obtém o vetor de lançamento e atira o projétil
+	Vetor forcaLancamento = obterVetorLancamento();
+	projetil.aplicarForca(forcaLancamento);
+	projetil.setAtirado(true);
 }
 #pragma endregion
 
@@ -190,19 +280,19 @@ void desenha()
 	glMatrixMode(GL_MODELVIEW);
 
 	// Desenha os prédios
-	for (unsigned int i = 0; i < predios.size(); i++)
+	for (int i = 0; i < predios.size(); i++)
 	{
 		predios[i].desenhaPredio();
 	}
 
-	// Desenha os gorillas
-	for (unsigned int i = 0; i < oozarus.size(); i++)
+	// Desenha os gorilas
+	for (int i = 0; i < oozarus.size(); i++)
 	{
 		oozarus[i].desenhaOozaru();
 	}
 
 	// Desenha as explosões
-	for (unsigned int i = 0; i < explosoes.size(); i++)
+	for (int i = 0; i < explosoes.size(); i++)
 	{
 		explosoes[i].desenhaExplosao();
 	}
@@ -238,9 +328,22 @@ void teclado(unsigned char key, int x, int y)
 	}
 
 	// Tecla ESC
+	if (key == 18)
+	{
+		inicializarObjetos();
+		return;
+	}
+
+	// Tecla ESC
 	if (key == 27)
 	{
 		exit(0);
+		return;
+	}
+
+	// Verifica se o jogador pode alterar os valores
+	if (!podeJogar)
+	{
 		return;
 	}
 
@@ -259,7 +362,10 @@ void teclado(unsigned char key, int x, int y)
 		// Altera o atributo em edição
 		atributo = 0;
 
-		// Altera para a edição do segundo oozaru
+		// Atira o projétil
+		atirarProjetil();
+
+		// Altera para a edição do segundo gorila
 		if (oozaruAtual == 0)
 		{
 			oozaruAtual = 1;
@@ -268,7 +374,7 @@ void teclado(unsigned char key, int x, int y)
 			return;
 		}
 
-		// Altera para a edição do primeiro oozaru
+		// Altera para a edição do primeiro gorila
 		oozaruAtual = 0;
 		anguloString0 = "";
 		velocidadeString0 = "";
@@ -373,6 +479,67 @@ void timer(int valor)
 	projetil.aplicarForca(force);
 	projetil.atualizar();
 
+	// Detecta a colisão entre o projétil e os prédios, sol e gorila
+	if (detectarColisaoPredios())
+	{
+		// Define que o projétil não está mais sendo atirado
+		projetil.setAtirado(false);
+		podeJogar = true;
+
+		// Zera as forças do projétil
+		projetil.zerarForcas();
+
+		// Define a nova posição do projétil
+		projetil = Projetil(
+			oozarus[oozaruAtual].getPosicaoInicial().getX() + 50,
+			oozarus[oozaruAtual].getPosicaoInicial().getY() + 10);
+	}
+
+	if (detectarColisaoSol())
+	{
+		// Define que o projétil não está mais sendo atirado
+		projetil.setAtirado(false);
+		podeJogar = true;
+
+		// Zera as forças do projétil
+		projetil.zerarForcas();
+
+		// Define a nova posição do projétil
+		projetil = Projetil(
+			oozarus[oozaruAtual].getPosicaoInicial().getX() + 50,
+			oozarus[oozaruAtual].getPosicaoInicial().getY() + 10);
+	}
+
+	if (detectarColisaoOozarus())
+	{
+		// Define que o projétil não está mais sendo atirado
+		projetil.setAtirado(false);
+		podeJogar = true;
+
+		// Zera as forças do projétil
+		projetil.zerarForcas();
+
+		// Define a nova posição do projétil
+		projetil = Projetil(
+			oozarus[oozaruAtual].getPosicaoInicial().getX() + 50,
+			oozarus[oozaruAtual].getPosicaoInicial().getY() + 10);
+	}
+
+	if (detectarColisaoLimitesHorizontaisTela())
+	{
+		// Define que o projétil não está mais sendo atirado
+		projetil.setAtirado(false);
+		podeJogar = true;
+
+		// Zera as forças do projétil
+		projetil.zerarForcas();
+
+		// Define a nova posição do projétil
+		projetil = Projetil(
+			oozarus[oozaruAtual].getPosicaoInicial().getX() + 50,
+			oozarus[oozaruAtual].getPosicaoInicial().getY() + 10);
+	}
+
 	glutPostRedisplay();
 	glutTimerFunc(tempoRefresh, timer, 0);
 }
@@ -390,20 +557,7 @@ int main(int argc, char **argv)
 	glutInitWindowPosition(10, 10);
 	glutCreateWindow("Gorillas - Arthur B. Bilibio, Johnatan da Rosa, Wagner Casagrande");
 
-	// Definir Prédios
-	carregarPredios();
-
-	// Definir posição dos gorillas
-	carregarOozarus();
-
-	// Define a posição inicial do sol
-	sol = Sol(width / 2, height - 70);
-
-	// Define a posição inicial do projétil
-	projetil = Projetil(
-		oozarus[0].getPosicaoInicial().getX() + 50,
-		oozarus[0].getPosicaoInicial().getY() + 10);
-	projetil.setAtivo(true);
+	inicializarObjetos();
 
 	// Define o tipo da projeção
 	glMatrixMode(GL_PROJECTION);

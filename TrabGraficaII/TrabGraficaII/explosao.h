@@ -18,4 +18,5 @@ private:
 	// Propriedades
 	Vetor posicaoInicial;
 	bool explosaoTerminada;
+	int contadorTermino;
 };

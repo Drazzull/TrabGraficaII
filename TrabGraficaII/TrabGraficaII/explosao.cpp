@@ -3,6 +3,7 @@
 Explosao::Explosao(GLfloat xInicial, GLfloat yInicial)
 {
 	this->explosaoTerminada = false;
+	this->contadorTermino = 0;
 	this->posicaoInicial = Vetor(xInicial, yInicial);
 }
 
@@ -27,6 +28,13 @@ void Explosao::desenhaExplosao()
 	else
 	{
 		glColor3ub(255, 255, 0);
+
+		// Verifica se a explosão terminou
+		contadorTermino++;
+		if (contadorTermino == 5)
+		{
+			this->explosaoTerminada = true;
+		}
 	}
 
 	int raio = 15;

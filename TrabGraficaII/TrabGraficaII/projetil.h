@@ -18,6 +18,9 @@ public:
 	// Atualiza a posição do objeto após a aplicação da velocidade
 	void atualizar();
 
+	// Zerar as forças do projétil
+	void zerarForcas();
+
 	// Getters
 	int getLargura();
 	int getAltura();
@@ -29,7 +32,6 @@ public:
 	// Setters
 	void setAtirado(bool valor);
 	void setAngulo(GLfloat valor);
-	void setAtivo(bool valor);
 	void setPosicaoInicial(GLfloat x, GLfloat y);
 	void setDirecaoLancamento(char valor);
 	void setVelocidadeLancamento(GLfloat valor);
@@ -39,8 +41,7 @@ public:
 	void desenhaProjetil();
 
 private:
-	// Propriedade que define se o projétil está ativo
-	bool ativo = false;
+	// Propriedade que define se o projétil foi atirado
 	bool atirado = false;
 
 	// Ângulo de rotação
